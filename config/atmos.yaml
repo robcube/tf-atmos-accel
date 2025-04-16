@@ -15,7 +15,7 @@
 # are independent settings (supporting both absolute and relative paths).
 # If `base_path` is provided, `components.terraform.base_path`, `components.helmfile.base_path`, `stacks.base_path` and `workflows.base_path`
 # are considered paths relative to `base_path`.
-base_path: "../../"
+base_path: "../"
 
 components:
   terraform:
@@ -29,7 +29,7 @@ components:
     # Can also be set using `ATMOS_COMPONENTS_TERRAFORM_INIT_RUN_RECONFIGURE` ENV var, or `--init-run-reconfigure` command-line argument
     init_run_reconfigure: true
     # Can also be set using `ATMOS_COMPONENTS_TERRAFORM_AUTO_GENERATE_BACKEND_FILE` ENV var, or `--auto-generate-backend-file` command-line argument
-    auto_generate_backend_file: true
+    auto_generate_backend_file: false
   helmfile:
     # Can also be set using `ATMOS_COMPONENTS_HELMFILE_BASE_PATH` ENV var, or `--helmfile-dir` command-line argument
     # Supports both absolute and relative paths
@@ -44,7 +44,7 @@ components:
 stacks:
   # Can also be set using `ATMOS_STACKS_BASE_PATH` ENV var, or `--config-dir` and `--stacks-dir` command-line arguments
   # Supports both absolute and relative paths
-  base_path: "stacks/azure"
+  base_path: "stacks"
   # Can also be set using `ATMOS_STACKS_INCLUDED_PATHS` ENV var (comma-separated values string)
   included_paths:
     - "**/**"
@@ -52,14 +52,16 @@ stacks:
   excluded_paths:
     - "**/_defaults.yaml"
     - "catalog/**/*"
+    - "catalog-dev/**/*"
     - "**/globals.yaml"
+    - "**/component_defaults.yaml"
   # Can also be set using `ATMOS_STACKS_NAME_PATTERN` ENV var
   name_pattern: "{namespace}-{environment}"
 
 workflows:
   # Can also be set using `ATMOS_WORKFLOWS_BASE_PATH` ENV var, or `--workflows-dir` command-line arguments
   # Supports both absolute and relative paths
-  base_path: "stacks/azure/workflows"
+  base_path: "stacks/workflows"
 
 logs:
   verbose: false
@@ -114,10 +116,10 @@ commands:
         steps:
           - atmos terraform plan $ATMOS_COMPONENT -s $ATMOS_STACK
           - atmos terraform apply $ATMOS_COMPONENT -s $ATMOS_STACK
-  - name: play
-    description: This command plays games
+  - name: az
+    description: Executes Azure CLI commands (not implemented)
     steps:
-      - echo Playing...
+      - echo az...
     # subcommands
     commands:
       - name: hello
@@ -130,6 +132,22 @@ commands:
         steps:
           - echo Playing ping-pong...
           - echo pong
+  - name: setup
+    description: Atmos setup commands
+    # subcommands
+    commands:
+      - name: check
+        description: This command checks whether atmos is setup correctly
+        steps:
+          - echo "Looks good."
+  - name: clean
+    description: Removes any .terraform, .terraform.lock.hcl, .planfile, .tfvars.json files left over from an atmos terraform command
+    steps: |
+      export TF_WORKSPACE=""
+      patterns=(".terraform" ".terraform.lock.hcl" "*.planfile" "*.tfvars.json" "backend.tf.json")
+      for pattern in "${patterns[@]}"; do
+        find . -name "$pattern" -exec rm -rf {} +
+      done
 
 # Integrations
 integrations:
@@ -156,6 +174,7 @@ integrations:
         allowed_regexp_prefixes:
           - automation/
           - dev/
+          - qa/
           - staging/
           - prod/
 
@@ -194,3 +213,25 @@ integrations:
         apply:
           steps:
             - run: terraform apply $PLANFILE
+  github:
+    gitops:
+      opentofu-version: 1.8.4
+      terraform-version: 1.9.5
+      infracost-enabled: false
+
+# `Go` templates in Atmos manifests
+# https://atmos.tools/core-concepts/stacks/templates
+# https://pkg.go.dev/text/template
+templates:
+  settings:
+    enabled: true
+    evaluations: 1
+    # https://masterminds.github.io/sprig
+    sprig:
+      enabled: true
+    # https://docs.gomplate.ca
+    gomplate:
+      enabled: true
+      timeout: 5
+      # https://docs.gomplate.ca/datasources
+      datasources: {}
