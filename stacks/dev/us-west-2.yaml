@@ -19,32 +19,21 @@ components:
     vpc:
       vars:
         name: vpc
-        tags:
-          component: "vpc"
-          expense-class: "network"
         ipv4_primary_cidr_block: "10.21.0.0/16"
         enable_vpc_endpoints: true
         transit_gateway_id: ""
         nat_gateway_enabled: true
+        subnet_type_tag_key: "private"
         availability_zones:
-          - us-west-2a
-          - us-west-2b
-          - us-west-2c
+          - "a"
+          - "b"
+          - "c"
 
-    # redshift/cluster:
-    # #Component level vars
-    #   vars:
-    #     name: redshift-cluster
-    #     tags:
-    #       component: "redshift-cluster"
-    #       expense-class: "database"
-    #     cluster_type: "single-node"
-    #     node_type: "dc2.large"
-    #     number_of_nodes: 1
-    #     database_name: devdb
-    #     master_username: devuser
-    #     master_user_password: devpassword
-    #     port: 5439
-    #     publicly_accessible: true
-    #     vpc_security_group_ids:
-    #       - "{{ .Components.vpc.security_groups.redshift_sg.id }}"
+    redshift:
+      metadata:
+        component: redshift-serverless # this marches the folder name of the module
+      vars:
+        enabled: true
+        name: rkosh-redshift
+        admin_user: admin
+        database_name: dev
