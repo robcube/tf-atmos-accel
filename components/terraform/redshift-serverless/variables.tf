@@ -134,3 +134,15 @@ variable "custom_sg_rules" {
   description = "Custom security group rules"
 
 }
+
+var "vpc_id" {
+  type        = string
+  default     = null
+  description = "VPC ID"
+}
+
+var subnet_ids {
+  type        = list(string)
+  default     = null
+  description = "List of subnet IDs"
+}

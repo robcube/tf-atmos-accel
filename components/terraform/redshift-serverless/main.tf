@@ -1,7 +1,7 @@
 
 locals {
   enabled        = module.this.enabled
-  subnet_ids     = var.use_private_subnets ? module.vpc.outputs.private_subnet_ids : module.vpc.outputs.public_subnet_ids
+  subnet_ids     = var.private_subnets
   admin_user     = var.admin_user != null && var.admin_user != "" ? var.admin_user : join("", random_pet.admin_user.*.id)
   admin_password = var.admin_password != null && var.admin_password != "" ? var.admin_password : join("", random_password.admin_password.*.result)
 }
@@ -47,7 +47,7 @@ module "redshift_sg" {
 
   rules = var.custom_sg_rules
 
-  vpc_id = module.vpc.outputs.vpc_id
+  vpc_id = var.vpc_id
 
   context = module.this.context
 }
@@ -105,5 +105,5 @@ resource "aws_redshiftserverless_endpoint_access" "default" {
 
   endpoint_name          = var.endpoint_name == null ? format("%s-%s", module.this.stage, module.this.name) : var.endpoint_name
   subnet_ids             = local.subnet_ids
-  vpc_security_group_ids = var.vpc_security_group_ids != null ? var.vpc_security_group_ids : [module.vpc.outputs.vpc_default_security_group_id]
+  vpc_security_group_ids = var.vpc_security_group_ids
 }

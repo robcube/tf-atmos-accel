@@ -37,3 +37,8 @@ components:
         name: robk-redshift
         admin_user: admin
         database_name: dev
+        subnet_ids:
+          - "fillme"
+          - "fillme"
+        vpc_id: "fillme"
+        custom_sg_enabled: true
