@@ -8,11 +8,11 @@ import:
 vars:
   region: us-west-2
   environment: uw2
-  namespace: pepetest
+  namespace: robktest
   tags:
     environment: dev
-    namespace: pepetest
-    deploy-by: "PePe Amengual"
+    namespace: robktest
+    deploy-by: "Rob Koch"
 
 components:
   terraform:
@@ -34,6 +34,6 @@ components:
         component: redshift-serverless # this marches the folder name of the module
       vars:
         enabled: true
-        name: rkosh-redshift
+        name: robk-redshift
         admin_user: admin
         database_name: dev
